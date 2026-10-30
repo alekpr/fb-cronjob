@@ -1,8 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { computeNextRun, isDue } from '../src/services/scheduler.js';
+import { computeNextRun, isDue, triggerJob } from '../src/services/scheduler.js';
 import { recurrenceLabel } from '../src/services/recurrence.js';
 import { bkkDatetimeToUnix } from '../src/utils/time.js';
+import {
+  createJob,
+  createPage,
+  deleteJob,
+  deletePage,
+  findJob,
+} from '../src/db/db.js';
 
 test('isDue: past/equal due, future not', () => {
   const now = bkkDatetimeToUnix('2026-10-30T10:00');
@@ -34,4 +41,29 @@ test('recurrenceLabel', () => {
     recurrenceLabel({ recurrence_type: 'monthly', recurrence_time: '08:00', recurrence_day_of_month: 15 }),
     'ทุกเดือน วันที่ 15 08:00',
   );
+});
+
+test('triggerJob: concurrent double-call runs once (no double-post)', async () => {
+  const suffix = Date.now();
+  const pageId = `test_page_${suffix}`;
+  const jobId = `test_job_${suffix}`;
+
+  createPage({ id: pageId, name: 'Test', accessToken: 'x' });
+  createJob({
+    id: jobId,
+    pageId,
+    message: 'hi',
+    recurrenceType: 'daily',
+    recurrenceTime: '09:00',
+    nextRunAt: Math.floor(Date.now() / 1000) - 1, // ถึงเวลาแล้ว
+  });
+
+  const p1 = triggerJob(jobId);
+  const p2 = triggerJob(jobId);
+  await Promise.all([p1, p2]);
+
+  assert.equal(findJob(jobId).run_count, 1);
+
+  deleteJob(jobId);
+  deletePage(pageId);
 });

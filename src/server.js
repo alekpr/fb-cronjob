@@ -11,8 +11,12 @@ const host = process.env.HOST || '127.0.0.1';
 const dryRun = process.env.DRY_RUN !== 'false';
 
 const app = createApp();
-app.listen(port, host, () => {
+const server = app.listen(port, host, () => {
   logger.info(`fb-cronjob ready at http://${host}:${port} (dry-run: ${dryRun})`);
+});
+server.on('error', (err) => {
+  logger.error({ error: err.message }, `failed to listen on ${host}:${port}`);
+  process.exit(1);
 });
 
 startScheduler();

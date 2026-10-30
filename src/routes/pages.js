@@ -11,6 +11,12 @@ import * as fb from '../services/fbService.js';
 
 const router = Router();
 
+/** ตัด access_token ออกก่อนส่งกลับ client */
+function publicPage(p) {
+  if (!p) return null;
+  return { id: p.id, name: p.name, is_default: p.is_default, created_at: p.created_at };
+}
+
 router.get('/pages', (_req, res) => {
   res.json({ pages: listPages() });
 });
@@ -26,7 +32,7 @@ router.post('/pages', (req, res) => {
     accessToken: String(accessToken).trim(),
     isDefault: Boolean(isDefault),
   });
-  res.status(201).json(page);
+  res.status(201).json(publicPage(page));
 });
 
 router.post('/pages/import', async (req, res) => {
@@ -45,7 +51,7 @@ router.post('/pages/import', async (req, res) => {
 router.post('/pages/:id/default', (req, res) => {
   const page = setDefaultPage(req.params.id);
   if (!page) return res.status(404).json({ error: 'ไม่พบเพจนี้' });
-  res.json(page);
+  res.json(publicPage(page));
 });
 
 router.delete('/pages/:id', (req, res) => {

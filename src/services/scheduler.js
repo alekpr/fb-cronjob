@@ -13,6 +13,7 @@ import logger from '../utils/logger.js';
 let timer = null;
 let ticking = false;
 let chain = Promise.resolve();
+const inFlight = new Set();
 
 export function isDue(nextRunAt, nowSec = Math.floor(Date.now() / 1000)) {
   return Number.isFinite(nextRunAt) && nextRunAt <= nowSec;
@@ -47,7 +48,18 @@ export function stopScheduler() {
 
 /** บังคับรัน job ทันที (สำหรับปุ่ม run-now) */
 export function triggerJob(jobId) {
-  chain = chain.then(() => processJob(jobId)).catch((err) => logger.error({ jobId, error: err.message }, 'trigger error'));
+  return enqueue(jobId);
+}
+
+/** กัน job เดียวกันถูก enqueue ซ้ำ (กัน double-post ของ recurring) */
+function enqueue(jobId) {
+  if (inFlight.has(jobId)) return chain;
+  inFlight.add(jobId);
+  chain = chain
+    .then(() => processJob(jobId))
+    .catch((err) => logger.error({ jobId, error: err.message }, 'process error'))
+    .finally(() => inFlight.delete(jobId));
+  return chain;
 }
 
 function tick() {
@@ -57,9 +69,7 @@ function tick() {
     const nowSec = Math.floor(Date.now() / 1000);
     const due = listDueJobs(nowSec);
     for (const job of due) {
-      chain = chain
-        .then(() => processJob(job.id))
-        .catch((err) => logger.error({ jobId: job.id, error: err.message }, 'process error'));
+      enqueue(job.id);
     }
   } finally {
     ticking = false;

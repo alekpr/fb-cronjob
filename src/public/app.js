@@ -2,6 +2,7 @@
 
 const $ = (id) => document.getElementById(id);
 let timer;
+let TZ = 'Asia/Bangkok';
 
 const STATUS_LABEL = {
   queued: 'รอคิว',
@@ -39,7 +40,7 @@ function esc(s) {
 function fmtBkk(ts) {
   if (!ts) return '—';
   return new Intl.DateTimeFormat('th-TH', {
-    timeZone: 'Asia/Bangkok',
+    timeZone: TZ,
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', hour12: false,
   }).format(new Date(ts * 1000));
@@ -68,6 +69,7 @@ function switchView(name) {
 async function loadConfig() {
   try {
     const c = await api('/config');
+    if (c.timezone) TZ = c.timezone;
     const badge = $('badge');
     if (c.dryRun) {
       badge.textContent = c.pageCount ? `DRY-RUN • ${c.pageCount} เพจ` : 'DRY-RUN • ยังไม่มีเพจ';
