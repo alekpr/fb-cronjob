@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FB Cronjob • Local</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>FB Cronjob<span class="accent">.</span></h1>
+      <small>โพสต์ Facebook อัตโนมัติเมื่อถึงเวลา • เครื่องต้องเปิดค้างไว้</small>
+    </div>
+    <span id="badge" class="badge">กำลังโหลด…</span>
+  </header>
+
+  <nav>
+    <button data-view="create" class="active">สร้างโพสต์</button>
+    <button data-view="queue">คิว</button>
+    <button data-view="history">ประวัติ</button>
+    <button data-view="pages">ตั้งค่าเพจ</button>
+    <button data-view="log">Log</button>
+  </nav>
+
+  <main>
+    <!-- Create -->
+    <section id="view-create" class="view">
+      <div class="card">
+        <h2>สร้างโพสต์เข้าคิว</h2>
+        <div class="form-grid">
+          <label>เลือกเพจ
+            <select id="pageSelect"></select>
+          </label>
+          <label>ตารางเวลา
+            <select id="scheduleType">
+              <option value="once">ครั้งเดียว</option>
+              <option value="daily">ทุกวัน</option>
+              <option value="weekly">ทุกสัปดาห์</option>
+              <option value="monthly">ทุกเดือน</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label id="onceGroup">วัน-เวลาโพสต์ (ครั้งเดียว)
+            <input id="datetime" type="datetime-local">
+          </label>
+          <label id="recurringGroup" class="hidden">เวลา (ทุกวัน/สัปดาห์/เดือน)
+            <input id="time" type="time">
+          </label>
+        </div>
+
+        <div id="weeklyGroup" class="hidden card-inner">
+          <label>วันในสัปดาห์</label>
+          <div id="weekdays" class="weekdays">
+            <label><input type="checkbox" value="0"> อา.</label>
+            <label><input type="checkbox" value="1"> จ.</label>
+            <label><input type="checkbox" value="2"> อ.</label>
+            <label><input type="checkbox" value="3"> พ.</label>
+            <label><input type="checkbox" value="4"> พฤ.</label>
+            <label><input type="checkbox" value="5"> ศ.</label>
+            <label><input type="checkbox" value="6"> ส.</label>
+          </div>
+        </div>
+
+        <div id="monthlyGroup" class="hidden">
+          <label>วันที่ (1–31)
+            <input id="dayOfMonth" type="number" min="1" max="31" value="1">
+          </label>
+        </div>
+
+        <label>ข้อความโพสต์
+          <textarea id="message" rows="3" placeholder="ข้อความโพสต์…"></textarea>
+        </label>
+        <label>Hashtags (ต่อท้ายอัตโนมัติ)
+          <input id="hashtags" placeholder="#promo #sale">
+        </label>
+        <label>ไฟล์ media (ไม่บังคับ — โพสต์ข้อความล้วนได้, carousel เลือกหลายรูป)
+          <input id="media" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm">
+        </label>
+
+        <button id="createBtn" class="primary">เพิ่มเข้าคิว</button>
+        <p id="createStatus" class="muted"></p>
+      </div>
+    </section>
+
+    <!-- Queue -->
+    <section id="view-queue" class="view hidden">
+      <div class="toolbar">
+        <button id="queueRefresh">รีเฟรช</button>
+        <span class="muted">อัปเดตอัตโนมัติทุก 15 วินาที</span>
+      </div>
+      <div id="queueTable" class="table-wrap"></div>
+    </section>
+
+    <!-- History -->
+    <section id="view-history" class="view hidden">
+      <div class="toolbar">
+        <button id="historyRefresh">รีเฟรช</button>
+      </div>
+      <div id="historyTable" class="table-wrap"></div>
+    </section>
+
+    <!-- Pages -->
+    <section id="view-pages" class="view hidden">
+      <div class="card">
+        <h2>เพจที่ตั้งค่าไว้</h2>
+        <div id="pagesList" class="table-wrap"></div>
+      </div>
+      <div class="card">
+        <h2>เพิ่มเพจ (วางเอง)</h2>
+        <div class="form-grid">
+          <label>Page ID<input id="addPageId"></label>
+          <label>ชื่อเพจ (ป้ายกำกับ)<input id="addPageName"></label>
+        </div>
+        <label>Page Access Token<input id="addPageToken" type="password"></label>
+        <button id="addPageBtn" class="primary">เพิ่มเพจ</button>
+      </div>
+      <div class="card">
+        <h2>นำเข้าเพจจาก User Token</h2>
+        <p class="muted">วาง long-lived user token ครั้งเดียว ระบบจะดึงทุกเพจ (id + name + token) มาเก็บให้อัตโนมัติ</p>
+        <label>User Access Token<input id="importToken" type="password"></label>
+        <button id="importBtn">นำเข้าเพจ</button>
+        <p id="importStatus" class="muted"></p>
+      </div>
+    </section>
+
+    <!-- Log -->
+    <section id="view-log" class="view hidden">
+      <div class="toolbar">
+        <button id="logRefresh">รีเฟรช</button>
+      </div>
+      <pre id="logBody" class="log"></pre>
+    </section>
+  </main>
+
+  <div id="toast" hidden role="status"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

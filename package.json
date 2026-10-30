@@ -1,0 +1,23 @@
+{
+  "name": "fb-cronjob",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Facebook auto-poster — publish posts immediately when their scheduled time arrives (no native scheduling)",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "luxon": "^3.7.2",
+    "multer": "^2.5.0",
+    "pino": "^10.4.0",
+    "pino-pretty": "^13.2.0"
+  }
+}
