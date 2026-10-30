@@ -24,7 +24,7 @@
 ## ติดตั้ง & รัน
 ```bash
 npm install
-npm start            # http://localhost:3000 (DRY_RUN=true ค่าเริ่มต้น)
+npm start            # http://localhost:3003 (DRY_RUN=true ค่าเริ่มต้น)
 DRY_RUN=false npm start   # เปิดโพสต์จริง
 ```
 
@@ -34,7 +34,7 @@ docker compose up -d --build
 docker compose logs -f
 docker compose down
 ```
-- bind เฉพาะ `127.0.0.1:3000` (แอปไม่มีระบบ login)
+- bind เฉพาะ `127.0.0.1:3003` (แอปไม่มีระบบ login)
 - `restart: unless-stopped` — ต้องเปิดเครื่อง/container ค้างไว้
 - ข้อมูล persist ใน `./data`, `./uploads`, `./logs`
 
@@ -57,7 +57,7 @@ docker compose down
 
 | ตัวแปร | คำอธิบาย | ค่าเริ่มต้น |
 |---|---|---|
-| `PORT` | พอร์ต | `3000` |
+| `PORT` | พอร์ต | `3003` |
 | `HOST` | ที่อยู่ bind | `127.0.0.1` |
 | `TIMEZONE` | เขตเวลา | `Asia/Bangkok` |
 | `GRAPH_VERSION` | เวอร์ชัน Graph API | `v21.0` |
